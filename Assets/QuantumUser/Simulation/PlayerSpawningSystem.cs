@@ -5,9 +5,14 @@ namespace Quantum
     /// <summary>
     /// Tự động sinh ra nhân vật tương ứng cho tối đa 4 người chơi khi kết nối vào phòng online
     /// Phân bổ vị trí xuất hiện (Spawn Points) và chỉ số ban đầu
+    /// Gắn sẵn Quantum View Component để Unity tự động sinh ra hình ảnh Kiếm Sĩ / Nữ Pháp Sư
     /// </summary>
     public unsafe class PlayerSpawningSystem : SystemSignalsOnly, ISignalOnPlayerAdded, ISignalOnPlayerRemoved
     {
+        // GUID Asset của 2 Prefab nhân vật đã tạo trong Assets/_Project/Prefabs
+        private static readonly AssetGuid SwordmasterGuid = new AssetGuid(0xcb0605d0f82e81a4, 0x4a759553b9eec16a);
+        private static readonly AssetGuid MageGuid = new AssetGuid(0x4cad065e8bdb8824, 0xca7c92d3fab47a9a);
+
         public void OnPlayerAdded(Frame frame, PlayerRef player, bool firstTime)
         {
             // Kiểm tra xem player này đã được spawn entity chưa
@@ -33,7 +38,6 @@ namespace Quantum
             frame.Set(entity, transform);
 
             // Gán Component PlayerCharacter
-            // Player 1 & 3: Kiếm sĩ (Swordmaster) | Player 2 & 4: Nữ Pháp Sư (Mage)
             CharacterClass chosenClass = (playerSlot % 2 == 0) ? CharacterClass.Mage : CharacterClass.Swordmaster;
 
             var playerChar = new PlayerCharacter
@@ -51,11 +55,18 @@ namespace Quantum
                 IsInvulnerable = false
             };
             frame.Set(entity, playerChar);
+
+            // GẮN VIEW COMPONENT: Báo cho Unity EntityViewUpdater tự sinh ra hình ảnh nhân vật
+            AssetGuid selectedGuid = (chosenClass == CharacterClass.Swordmaster) ? SwordmasterGuid : MageGuid;
+            var view = new View
+            {
+                Current = selectedGuid
+            };
+            frame.Set(entity, view);
         }
 
         public void OnPlayerRemoved(Frame frame, PlayerRef player)
         {
-            // Xóa entity khi người chơi ngắt kết nối
             var players = frame.Filter<PlayerCharacter>();
             while (players.Next(out var entity, out var playerChar))
             {
