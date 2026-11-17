@@ -5,8 +5,9 @@ namespace Quantum2D.UnityView
 {
     /// <summary>
     /// Đồng bộ trực tiếp dữ liệu từ Quantum Simulation sang Sprite và Animation của Unity View
+    /// Dùng frame.Get<PlayerCharacter>() an toàn (Safe Code), hoàn toàn không cần cờ unsafe
     /// </summary>
-    public unsafe class QuantumCharacterEntityView : QuantumEntityView
+    public class QuantumCharacterEntityView : QuantumEntityView
     {
         [Header("Animation Controller")]
         [SerializeField] private CharacterAnimationController2D animController;
@@ -28,16 +29,17 @@ namespace Quantum2D.UnityView
             var frame = PredictedFrame;
             if (frame == null || !frame.Exists(EntityRef)) return;
 
-            if (frame.Unsafe.TryGetPointer<PlayerCharacter>(EntityRef, out var playerChar))
+            // Đọc component một cách an toàn (Safe C# - không dùng con trỏ pointer)
+            if (frame.TryGet<PlayerCharacter>(EntityRef, out var playerChar))
             {
                 // Cập nhật hướng quay mặt
-                Vector2 dir = playerChar->FacingDirection.ToVector2();
+                Vector2 dir = playerChar.FacingDirection.ToVector2();
                 if (animController != null)
                 {
                     animController.SetFacingDirection(dir);
 
                     // Đồng bộ trạng thái Animation từ ECS
-                    switch (playerChar->CurrentState)
+                    switch (playerChar.CurrentState)
                     {
                         case ActionState.Idle:
                             animController.SetState(CharacterAnimState.Idle);
