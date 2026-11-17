@@ -5,14 +5,9 @@ namespace Quantum
     /// <summary>
     /// Tự động sinh ra nhân vật tương ứng cho tối đa 4 người chơi khi kết nối vào phòng online
     /// Phân bổ vị trí xuất hiện (Spawn Points) và chỉ số ban đầu
-    /// Gắn sẵn Quantum View Component để Unity tự động sinh ra hình ảnh Kiếm Sĩ / Nữ Pháp Sư
     /// </summary>
     public unsafe class PlayerSpawningSystem : SystemSignalsOnly, ISignalOnPlayerAdded, ISignalOnPlayerRemoved
     {
-        // GUID Asset của 2 Prefab nhân vật đã tạo trong Assets/_Project/Prefabs
-        private static readonly AssetGuid SwordmasterGuid = new AssetGuid(0xcb0605d0f82e81a4, 0x4a759553b9eec16a);
-        private static readonly AssetGuid MageGuid = new AssetGuid(0x4cad065e8bdb8824, 0xca7c92d3fab47a9a);
-
         public void OnPlayerAdded(Frame frame, PlayerRef player, bool firstTime)
         {
             // Kiểm tra xem player này đã được spawn entity chưa
@@ -48,21 +43,24 @@ namespace Quantum
                 MoveSpeed = FP._4,
                 Health = FP._100,
                 MaxHealth = FP._100,
-                Mana = (FP._100),
-                MaxMana = (FP._100),
+                Mana = FP._100,
+                MaxMana = FP._100,
                 FacingDirection = FPVector2.Right,
                 ComboIndex = 0,
                 IsInvulnerable = false
             };
             frame.Set(entity, playerChar);
 
-            // GẮN VIEW COMPONENT: Báo cho Unity EntityViewUpdater tự sinh ra hình ảnh nhân vật
-            AssetGuid selectedGuid = (chosenClass == CharacterClass.Swordmaster) ? SwordmasterGuid : MageGuid;
-            var view = new View
+            // Gán View Component thông qua AssetGuid.TryParse chuẩn của Quantum 3
+            string guidString = (chosenClass == CharacterClass.Swordmaster) ? "cb0605d0f82e81a44a759553b9eec16a" : "4cad065e8bdb8824ca7c92d3fab47a9a";
+            if (AssetGuid.TryParse(guidString, out var assetGuid, false))
             {
-                Current = selectedGuid
-            };
-            frame.Set(entity, view);
+                var view = new View
+                {
+                    Current = assetGuid
+                };
+                frame.Set(entity, view);
+            }
         }
 
         public void OnPlayerRemoved(Frame frame, PlayerRef player)
