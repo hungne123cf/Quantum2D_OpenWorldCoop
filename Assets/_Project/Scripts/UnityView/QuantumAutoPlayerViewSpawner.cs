@@ -26,21 +26,18 @@ namespace Quantum2D.UnityView
 
         private void Update()
         {
-            // Kiểm tra Runner của Quantum (Offline runner hoặc Online runner)
             var runner = QuantumRunner.Default;
             if (runner == null || runner.Game == null) return;
 
             var frame = runner.Game.Frames.Predicted;
             if (frame == null) return;
 
-            // NẾU CHƯA CÓ PLAYER NÀO ĐƯỢC TẠO -> TỰ TẠO NGAY CHO PLAYER 0 ĐỂ CHƠI NGAY
+            // Nếu chưa có player nào thì AddPlayer
             if (frame.ComponentCount<PlayerCharacter>() == 0)
             {
-                // Gọi thêm player nếu Runner chưa kịp gọi
                 runner.Game.AddPlayer(0, new RuntimePlayer { PlayerNickname = "Player1" });
             }
 
-            // Lọc toàn bộ người chơi trong Frame
             var players = frame.Filter<Transform2D, PlayerCharacter>();
             var activeEntities = new HashSet<EntityRef>();
 
@@ -71,13 +68,18 @@ namespace Quantum2D.UnityView
                 }
                 else
                 {
-                    // Cập nhật vị trí mượt mà
+                    // Di chuyển theo toạ độ mô phỏng ECS
                     Vector3 targetPos = new Vector3((float)transform2d.Position.X, (float)transform2d.Position.Y, 0f);
                     viewGo.transform.position = targetPos;
+
+                    // Camera bám theo nhân vật đang điều khiển
+                    if (Camera.main != null)
+                    {
+                        Camera.main.transform.position = new Vector3(targetPos.x, targetPos.y, -10f);
+                    }
                 }
             }
 
-            // Dọn dẹp khi người chơi thoát
             var toRemove = new List<EntityRef>();
             foreach (var kvp in _spawnedViews)
             {
