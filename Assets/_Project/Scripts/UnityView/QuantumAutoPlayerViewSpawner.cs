@@ -33,6 +33,13 @@ namespace Quantum2D.UnityView
             var frame = runner.Game.Frames.Predicted;
             if (frame == null) return;
 
+            // NẾU CHƯA CÓ PLAYER NÀO ĐƯỢC TẠO -> TỰ TẠO NGAY CHO PLAYER 0 ĐỂ CHƠI NGAY
+            if (frame.ComponentCount<PlayerCharacter>() == 0)
+            {
+                // Gọi thêm player nếu Runner chưa kịp gọi
+                runner.Game.AddPlayer(0, new RuntimePlayer { PlayerNickname = "Player1" });
+            }
+
             // Lọc toàn bộ người chơi trong Frame
             var players = frame.Filter<Transform2D, PlayerCharacter>();
             var activeEntities = new HashSet<EntityRef>();
@@ -50,7 +57,7 @@ namespace Quantum2D.UnityView
                         Vector3 worldPos = new Vector3((float)transform2d.Position.X, (float)transform2d.Position.Y, 0f);
                         viewGo = Instantiate(prefabToSpawn, worldPos, Quaternion.identity);
                         viewGo.name = $"Player_{playerChar.Player}_{playerChar.ClassType}";
-                        viewGo.transform.localScale = Vector3.one * 1.5f; // Tăng nhẹ kích thước dễ nhìn
+                        viewGo.transform.localScale = Vector3.one * 1.5f;
 
                         var entityView = viewGo.GetComponent<QuantumCharacterEntityView>();
                         if (entityView != null)
@@ -61,10 +68,6 @@ namespace Quantum2D.UnityView
                         _spawnedViews[entity] = viewGo;
                         Debug.Log($"<color=green>[Quantum2D]</color> ĐÃ SINH NHÂN VẬT THÀNH CÔNG: {viewGo.name} tại toạ độ {worldPos}");
                     }
-                    else
-                    {
-                        Debug.LogWarning("[Quantum2D] Không tìm thấy Prefab nhân vật để sinh!");
-                    }
                 }
                 else
                 {
@@ -74,7 +77,7 @@ namespace Quantum2D.UnityView
                 }
             }
 
-            // Dọn dẹp
+            // Dọn dẹp khi người chơi thoát
             var toRemove = new List<EntityRef>();
             foreach (var kvp in _spawnedViews)
             {

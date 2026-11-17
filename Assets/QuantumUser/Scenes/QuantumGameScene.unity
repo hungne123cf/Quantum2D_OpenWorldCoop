@@ -551,7 +551,10 @@ MonoBehaviour:
   UseRandomSeed: 0
   SessionConfig: {fileID: 0}
   LocalPlayers:
-  - {PlayerSlot: 0}
+  - PlayerAvatar:
+      Id:
+        Value: 0
+    PlayerNickname: Player1
   MaxPlayerCount: 4
   SimulationSpeedMultiplier: 1
   DisplaySaveAndReloadButton: 0
