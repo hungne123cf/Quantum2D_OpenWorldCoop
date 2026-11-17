@@ -550,8 +550,9 @@ MonoBehaviour:
         Value: 3594705776477561566
   UseRandomSeed: 0
   SessionConfig: {fileID: 0}
-  LocalPlayers: []
-  MaxPlayerCount: 0
+  LocalPlayers:
+  - {PlayerSlot: 0}
+  MaxPlayerCount: 4
   SimulationSpeedMultiplier: 1
   DisplaySaveAndReloadButton: 0
   PreloadAddressables: 0
