@@ -1,0 +1,128 @@
+// =========================================================================
+// QUANTUM 3 DSL DEFINITION: Character & Co-op Systems
+// File: Assets/QuantumUser/Simulation/Character.qtn
+// =========================================================================
+
+enum CharacterClass : Byte
+{
+    Swordmaster = 0,
+    Mage = 1,
+    Ranger = 2,
+    Paladin = 3
+}
+
+enum ActionState : Byte
+{
+    Idle = 0,
+    Run = 1,
+    AttackCombo1 = 2,
+    AttackCombo2 = 3,
+    AttackCombo3 = 4,
+    Dash = 5,
+    SkillWhirlwindOrAstralCircle = 6,
+    Hurt = 7,
+    Downed = 8
+}
+
+enum ResourceType : Byte
+{
+    LumberWood = 0,
+    IronOre = 1,
+    MagicCrystal = 2,
+    HerbalPlant = 3
+}
+
+// Component cho người chơi
+component PlayerCharacter
+{
+    PlayerRef Player;
+    CharacterClass ClassType;
+    ActionState CurrentState;
+    FP StateTimer;
+    FP MoveSpeed;
+    
+    // Chỉ số sinh mệnh & năng lượng
+    FP Health;
+    FP MaxHealth;
+    FP Mana;
+    FP MaxMana;
+    
+    // Combat & Dash
+    Int32 ComboIndex;
+    FP AttackCooldown;
+    FP DashCooldown;
+    FPVector2 FacingDirection;
+    Boolean IsInvulnerable; // i-frame bất tử khi dash
+    
+    // Co-op Mechanics
+    FP ReviveProgress;
+    EntityRef DownedPartner;
+}
+
+// Node tài nguyên thế giới mở
+component ResourceNode
+{
+    ResourceType Type;
+    FP CurrentDurability;
+    FP MaxDurability;
+    Int32 DropCount;
+    Boolean IsDepleted;
+    FP RespawnTimer;
+}
+
+// Quái vật AI thế giới mở
+component EnemyMob
+{
+    FP Health;
+    FP MaxHealth;
+    FP AttackPower;
+    FP MoveSpeed;
+    FP DetectRadius;
+    EntityRef TargetPlayer;
+    ActionState State;
+    FP AttackCooldown;
+}
+
+// Events đồng bộ sang Unity View (để bật Animator, VFX, Sound)
+event EventPlayerAttack
+{
+    EntityRef Player;
+    CharacterClass ClassType;
+    Int32 ComboStep;
+    FPVector2 Position;
+    FPVector2 Direction;
+}
+
+event EventPlayerDash
+{
+    EntityRef Player;
+    CharacterClass ClassType;
+    FPVector2 StartPos;
+    FPVector2 EndPos;
+}
+
+event EventPlayerHurt
+{
+    EntityRef Target;
+    FP Damage;
+    FPVector2 HitPosition;
+}
+
+event EventPlayerDowned
+{
+    EntityRef Player;
+}
+
+event EventPlayerRevived
+{
+    EntityRef Player;
+    EntityRef RevivedBy;
+}
+
+event EventResourceGathered
+{
+    EntityRef Player;
+    ResourceType Type;
+    Int32 Quantity;
+    FPVector2 Position;
+}

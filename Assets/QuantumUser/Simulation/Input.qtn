@@ -1,0 +1,15 @@
+// =========================================================================
+// QUANTUM 3 DSL DEFINITION: Top-down 2D Co-op Input
+// File: Assets/QuantumUser/Simulation/Input.qtn
+// =========================================================================
+
+input
+{
+    FPVector2 MoveDirection;
+    FPVector2 AimDirection;
+    button Attack;
+    button Dash;
+    button SkillA;
+    button SkillB;
+    button Interact; // Chặt cây, đập quặng, cứu đồng đội
+}
