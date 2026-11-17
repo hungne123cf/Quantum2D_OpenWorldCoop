@@ -7,66 +7,61 @@ namespace Quantum2D.EditorTools
 {
     public static class SpriteStripSlicer
     {
-        [MenuItem("Quantum2D/⚡ CAT TAT CA DAI FRAME THANH TUNG CON")]
+        [MenuItem("Quantum2D/⚡ 1. CAT TAT CA DAI FRAME THANH TUNG CON")]
         public static void SliceAllStrips()
         {
-            string folder = "Assets/_Project/Art/Sprites/Characters";
-            string[] files = Directory.GetFiles(folder, "*.png");
-
-            foreach (var file in files)
+            var stripConfigs = new Dictionary<string, (int width, int height, int cols)>
             {
-                string assetPath = file.Replace("\\", "/");
-                string fileName = Path.GetFileNameWithoutExtension(assetPath).ToLower();
+                { "Swordmaster_idle", (703, 121, 8) },
+                { "Swordmaster_Run", (722, 110, 8) },
+                { "Swordmaster_attack", (705, 100, 8) },
+                { "Swordmaster_dash", (714, 88, 8) },
+                { "Swordmaster_hurt", (408, 100, 4) },
+                { "Swordmaster_die", (699, 112, 8) }
+            };
 
-                // Xác định số frame dựa theo tên động tác
-                int colCount = 8;
-                if (fileName.Contains("hurt")) colCount = 4; // Dải hurt có 4 frame
+            foreach (var kvp in stripConfigs)
+            {
+                string assetPath = $"Assets/_Project/Art/Sprites/Characters/{kvp.Key}.png";
+                if (!File.Exists(assetPath)) continue;
 
-                SliceHorizontalStrip(assetPath, colCount);
+                TextureImporter importer = AssetImporter.GetAtPath(assetPath) as TextureImporter;
+                if (importer == null) continue;
+
+                importer.textureType = TextureImporterType.Sprite;
+                importer.spriteImportMode = SpriteImportMode.Multiple;
+                importer.filterMode = FilterMode.Point;
+                importer.textureCompression = TextureImporterCompression.Uncompressed;
+                importer.alphaIsTransparency = true;
+                importer.mipmapEnabled = false;
+
+                int width = kvp.Value.width;
+                int height = kvp.Value.height;
+                int cols = kvp.Value.cols;
+                float cellW = (float)width / cols;
+                float cellH = (float)height;
+
+                List<SpriteMetaData> metas = new List<SpriteMetaData>();
+                for (int i = 0; i < cols; i++)
+                {
+                    float x = i * cellW;
+                    SpriteMetaData meta = new SpriteMetaData
+                    {
+                        name = $"{kvp.Key}_{i}",
+                        rect = new Rect(x, 0, cellW, cellH),
+                        alignment = (int)SpriteAlignment.Custom,
+                        pivot = new Vector2(0.5f, 0.15f)
+                    };
+                    metas.Add(meta);
+                }
+
+                importer.spritesheet = metas.ToArray();
+                EditorUtility.SetDirty(importer);
+                importer.SaveAndReimport();
             }
 
             AssetDatabase.Refresh();
             Debug.Log("<color=green>[Quantum2D]</color> ĐÃ CẮT THÀNH CÔNG TỪNG FRAME CHO TẤT CẢ DẢI ẢNH!");
-        }
-
-        private static void SliceHorizontalStrip(string assetPath, int colCount)
-        {
-            TextureImporter importer = AssetImporter.GetAtPath(assetPath) as TextureImporter;
-            if (importer == null) return;
-
-            importer.textureType = TextureImporterType.Sprite;
-            importer.spriteImportMode = SpriteImportMode.Multiple;
-            importer.filterMode = FilterMode.Point;
-            importer.textureCompression = TextureImporterCompression.Uncompressed;
-            importer.alphaIsTransparency = true;
-
-            // Đọc kích thước ảnh thật
-            Texture2D tex = AssetDatabase.LoadAssetAtPath<Texture2D>(assetPath);
-            int width = tex != null ? tex.width : 700;
-            int height = tex != null ? tex.height : 100;
-
-            float cellW = (float)width / colCount;
-            float cellH = (float)height;
-
-            string baseName = Path.GetFileNameWithoutExtension(assetPath);
-            List<SpriteMetaData> metas = new List<SpriteMetaData>();
-
-            for (int i = 0; i < colCount; i++)
-            {
-                float x = i * cellW;
-                SpriteMetaData meta = new SpriteMetaData
-                {
-                    name = $"{baseName}_{i}",
-                    rect = new Rect(x, 0, cellW, cellH),
-                    alignment = (int)SpriteAlignment.Custom,
-                    pivot = new Vector2(0.5f, 0.15f) // Gốc chân nhân vật
-                };
-                metas.Add(meta);
-            }
-
-            importer.spritesheet = metas.ToArray();
-            EditorUtility.SetDirty(importer);
-            importer.SaveAndReimport();
         }
     }
 }
