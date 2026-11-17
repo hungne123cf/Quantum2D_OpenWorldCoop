@@ -5,7 +5,6 @@ namespace Quantum2D.UnityView
 {
     /// <summary>
     /// Đồng bộ trực tiếp dữ liệu từ Quantum Simulation sang Sprite và Animation của Unity View
-    /// Dùng frame.Get<PlayerCharacter>() an toàn (Safe Code), hoàn toàn không cần cờ unsafe
     /// </summary>
     public class QuantumCharacterEntityView : QuantumEntityView
     {
@@ -26,14 +25,15 @@ namespace Quantum2D.UnityView
 
         public override void OnUpdateView()
         {
-            var frame = PredictedFrame;
-            if (frame == null || !frame.Exists(EntityRef)) return;
+            if (Game == null || Game.Frames.Predicted == null) return;
+            var frame = Game.Frames.Predicted;
+            if (!frame.Exists(EntityRef)) return;
 
-            // Đọc component một cách an toàn (Safe C# - không dùng con trỏ pointer)
+            // Đọc component PlayerCharacter từ ECS Frame
             if (frame.TryGet<PlayerCharacter>(EntityRef, out var playerChar))
             {
                 // Cập nhật hướng quay mặt
-                Vector2 dir = playerChar.FacingDirection.ToVector2();
+                Vector2 dir = playerChar.FacingDirection.ToUnityVector2();
                 if (animController != null)
                 {
                     animController.SetFacingDirection(dir);
@@ -70,7 +70,8 @@ namespace Quantum2D.UnityView
         {
             if (e.Player == EntityRef && vfxSpawner != null)
             {
-                vfxSpawner.SpawnAttackVfx(e.ComboStep, transform.position, e.Direction.ToVector2(), e.Direction.X < 0);
+                Vector2 dir = e.Direction.ToUnityVector2();
+                vfxSpawner.SpawnAttackVfx(e.ComboStep, transform.position, dir, dir.x < 0);
             }
         }
 
@@ -78,7 +79,8 @@ namespace Quantum2D.UnityView
         {
             if (e.Player == EntityRef && vfxSpawner != null)
             {
-                vfxSpawner.SpawnDashTrail(transform.position, (e.EndPos - e.StartPos).ToVector2());
+                Vector2 delta = (e.EndPos - e.StartPos).ToUnityVector2();
+                vfxSpawner.SpawnDashTrail(transform.position, delta);
             }
         }
     }

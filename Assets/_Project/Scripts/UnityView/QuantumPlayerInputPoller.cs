@@ -17,7 +17,7 @@ namespace Quantum2D.UnityView
 
         private void OnDisable()
         {
-            QuantumCallback.Unsubscribe(this);
+            QuantumCallback.UnsubscribeListener(this);
         }
 
         public void PollInput(CallbackPollInput callback)
