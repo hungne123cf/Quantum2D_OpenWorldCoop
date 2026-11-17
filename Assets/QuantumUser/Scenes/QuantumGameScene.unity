@@ -676,8 +676,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5fc3e1e515a06e4478826f71ed1d9024, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Quantum2D.UnityView.QuantumAutoPlayerViewSpawner
-  swordmasterPrefab: {fileID: 0}
-  magePrefab: {fileID: 0}
+  swordmasterPrefab: {fileID: 5648889943898587176, guid: cb0605d0f82e81a44a759553b9eec16a, type: 3}
+  magePrefab: {fileID: 5648889943898587176, guid: 4cad065e8bdb8824ca7c92d3fab47a9a, type: 3}
 --- !u!114 &300000004
 MonoBehaviour:
   m_ObjectHideFlags: 0

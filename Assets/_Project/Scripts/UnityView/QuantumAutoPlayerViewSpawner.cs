@@ -4,10 +4,6 @@ using UnityEngine;
 
 namespace Quantum2D.UnityView
 {
-    /// <summary>
-    /// Đồng bộ tự động sinh ra nhân vật hiển thị trực tiếp cho Quantum 3
-    /// Không phụ thuộc vào AssetDB GUID, đảm bảo thấy ngay nhân vật 100% khi bấm Play
-    /// </summary>
     public class QuantumAutoPlayerViewSpawner : MonoBehaviour
     {
         [Header("Character Prefabs")]
@@ -16,7 +12,7 @@ namespace Quantum2D.UnityView
 
         private readonly Dictionary<EntityRef, GameObject> _spawnedViews = new Dictionary<EntityRef, GameObject>();
 
-        private void OnEnable()
+        private void Awake()
         {
             if (swordmasterPrefab == null)
             {
@@ -30,12 +26,14 @@ namespace Quantum2D.UnityView
 
         private void Update()
         {
-            var game = QuantumRunner.Default != null ? QuantumRunner.Default.Game : null;
-            if (game == null || game.Frames.Predicted == null) return;
+            // Kiểm tra Runner của Quantum (Offline runner hoặc Online runner)
+            var runner = QuantumRunner.Default;
+            if (runner == null || runner.Game == null) return;
 
-            var frame = game.Frames.Predicted;
+            var frame = runner.Game.Frames.Predicted;
+            if (frame == null) return;
 
-            // Duyệt toàn bộ người chơi trong Frame mô phỏng của Quantum
+            // Lọc toàn bộ người chơi trong Frame
             var players = frame.Filter<Transform2D, PlayerCharacter>();
             var activeEntities = new HashSet<EntityRef>();
 
@@ -43,16 +41,17 @@ namespace Quantum2D.UnityView
             {
                 activeEntities.Add(entity);
 
-                if (!_spawnedViews.TryGetValue(entity, out var viewGo))
+                if (!_spawnedViews.TryGetValue(entity, out var viewGo) || viewGo == null)
                 {
-                    // Chọn đúng Prefab Kiếm Sĩ hoặc Pháp Sư
                     GameObject prefabToSpawn = (playerChar.ClassType == CharacterClass.Swordmaster) ? swordmasterPrefab : magePrefab;
                     
                     if (prefabToSpawn != null)
                     {
-                        viewGo = Instantiate(prefabToSpawn, transform2d.Position.ToUnityVector2(), Quaternion.identity);
+                        Vector3 worldPos = new Vector3((float)transform2d.Position.X, (float)transform2d.Position.Y, 0f);
+                        viewGo = Instantiate(prefabToSpawn, worldPos, Quaternion.identity);
                         viewGo.name = $"Player_{playerChar.Player}_{playerChar.ClassType}";
-                        
+                        viewGo.transform.localScale = Vector3.one * 1.5f; // Tăng nhẹ kích thước dễ nhìn
+
                         var entityView = viewGo.GetComponent<QuantumCharacterEntityView>();
                         if (entityView != null)
                         {
@@ -60,17 +59,22 @@ namespace Quantum2D.UnityView
                         }
 
                         _spawnedViews[entity] = viewGo;
-                        Debug.Log($"<color=cyan>[Quantum2D]</color> Đã sinh nhân vật hiển thị thành công: {viewGo.name}");
+                        Debug.Log($"<color=green>[Quantum2D]</color> ĐÃ SINH NHÂN VẬT THÀNH CÔNG: {viewGo.name} tại toạ độ {worldPos}");
+                    }
+                    else
+                    {
+                        Debug.LogWarning("[Quantum2D] Không tìm thấy Prefab nhân vật để sinh!");
                     }
                 }
                 else
                 {
-                    // Cập nhật vị trí mượt mà theo toạ độ Quantum ECS
-                    viewGo.transform.position = transform2d.Position.ToUnityVector2();
+                    // Cập nhật vị trí mượt mà
+                    Vector3 targetPos = new Vector3((float)transform2d.Position.X, (float)transform2d.Position.Y, 0f);
+                    viewGo.transform.position = targetPos;
                 }
             }
 
-            // Dọn dẹp nhân vật khi người chơi thoát
+            // Dọn dẹp
             var toRemove = new List<EntityRef>();
             foreach (var kvp in _spawnedViews)
             {
