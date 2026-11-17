@@ -42,8 +42,8 @@ namespace Quantum
             };
             frame.Set(entity, transform);
 
-            // Gán Component PlayerCharacter
-            CharacterClass chosenClass = (playerSlot % 2 == 0) ? CharacterClass.Mage : CharacterClass.Swordmaster;
+            // Gán Component PlayerCharacter (Ưu tiên Swordmaster cho người chơi đầu tiên)
+            CharacterClass chosenClass = (playerSlot % 2 == 0) ? CharacterClass.Swordmaster : CharacterClass.Mage;
 
             var playerChar = new PlayerCharacter
             {

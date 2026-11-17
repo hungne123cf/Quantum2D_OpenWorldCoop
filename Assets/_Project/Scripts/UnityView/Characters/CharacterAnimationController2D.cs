@@ -129,6 +129,23 @@ namespace Quantum2D.UnityView
             }
         }
 
+        public void SetAnimationClips(List<Sprite> idle, List<Sprite> run, List<Sprite> attack, List<Sprite> hurt, List<Sprite> dash, List<Sprite> die)
+        {
+            animationClips.Clear();
+            if (idle != null && idle.Count > 0)
+                animationClips.Add(new AnimationClip2D { state = CharacterAnimState.Idle, frames = idle.ToArray(), frameRate = 8f, loop = true });
+            if (run != null && run.Count > 0)
+                animationClips.Add(new AnimationClip2D { state = CharacterAnimState.Run, frames = run.ToArray(), frameRate = 12f, loop = true });
+            if (attack != null && attack.Count > 0)
+                animationClips.Add(new AnimationClip2D { state = CharacterAnimState.Attack, frames = attack.ToArray(), frameRate = 14f, loop = false });
+            if (hurt != null && hurt.Count > 0)
+                animationClips.Add(new AnimationClip2D { state = CharacterAnimState.Hurt, frames = hurt.ToArray(), frameRate = 10f, loop = false });
+            if (dash != null && dash.Count > 0)
+                animationClips.Add(new AnimationClip2D { state = CharacterAnimState.Dash, frames = dash.ToArray(), frameRate = 16f, loop = false });
+            if (die != null && die.Count > 0)
+                animationClips.Add(new AnimationClip2D { state = CharacterAnimState.Die, frames = die.ToArray(), frameRate = 8f, loop = false });
+        }
+
         public Transform GetVfxPoint(string vfxType)
         {
             switch (vfxType.ToLower())
