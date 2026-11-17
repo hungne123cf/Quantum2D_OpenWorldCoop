@@ -4,11 +4,21 @@ namespace Quantum
 {
     /// <summary>
     /// Tự động sinh ra nhân vật tương ứng cho tối đa 4 người chơi khi kết nối vào phòng online
-    /// Phân bổ vị trí xuất hiện (Spawn Points) và chỉ số ban đầu
+    /// Hỗ trợ cả ISignalOnPlayerAdded và ISignalOnPlayerDataSet (đảm bảo 100% bắt được sự kiện)
     /// </summary>
-    public unsafe class PlayerSpawningSystem : SystemSignalsOnly, ISignalOnPlayerAdded, ISignalOnPlayerRemoved
+    public unsafe class PlayerSpawningSystem : SystemSignalsOnly, ISignalOnPlayerAdded, ISignalOnPlayerDataSet, ISignalOnPlayerRemoved
     {
         public void OnPlayerAdded(Frame frame, PlayerRef player, bool firstTime)
+        {
+            SpawnPlayerEntity(frame, player);
+        }
+
+        public void OnPlayerDataSet(Frame frame, PlayerRef player)
+        {
+            SpawnPlayerEntity(frame, player);
+        }
+
+        private void SpawnPlayerEntity(Frame frame, PlayerRef player)
         {
             // Kiểm tra xem player này đã được spawn entity chưa
             var players = frame.Filter<PlayerCharacter>();
@@ -51,7 +61,7 @@ namespace Quantum
             };
             frame.Set(entity, playerChar);
 
-            // Gán View Component thông qua AssetGuid.TryParse chuẩn của Quantum 3
+            // Gán View Component
             string guidString = (chosenClass == CharacterClass.Swordmaster) ? "cb0605d0f82e81a44a759553b9eec16a" : "4cad065e8bdb8824ca7c92d3fab47a9a";
             if (AssetGuid.TryParse(guidString, out var assetGuid, false))
             {
