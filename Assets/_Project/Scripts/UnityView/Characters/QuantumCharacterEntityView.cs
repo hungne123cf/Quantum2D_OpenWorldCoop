@@ -25,15 +25,27 @@ namespace Quantum2D.UnityView
 
         public override void OnUpdateView()
         {
-            if (Game == null || Game.Frames.Predicted == null) return;
-            var frame = Game.Frames.Predicted;
-            if (!frame.Exists(EntityRef)) return;
+            UpdateCharacterState();
+        }
+
+        private void Update()
+        {
+            UpdateCharacterState();
+        }
+
+        private void UpdateCharacterState()
+        {
+            var runner = QuantumRunner.Default;
+            if (runner == null || runner.Game == null) return;
+            var frame = runner.Game.Frames.Predicted;
+            if (frame == null || !frame.Exists(EntityRef)) return;
 
             // Đọc component PlayerCharacter từ ECS Frame
             if (frame.TryGet<PlayerCharacter>(EntityRef, out var playerChar))
             {
                 // Cập nhật hướng quay mặt
                 Vector2 dir = playerChar.FacingDirection.ToUnityVector2();
+                if (animController == null) animController = GetComponentInChildren<CharacterAnimationController2D>();
                 if (animController != null)
                 {
                     animController.SetFacingDirection(dir);

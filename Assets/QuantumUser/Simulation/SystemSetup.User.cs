@@ -15,6 +15,8 @@ namespace Quantum
             
             // Xử lý đòn đánh combo và hồi sinh co-op
             systems.Add(new PlayerCombatSystem());
+
+            Log.Info("<color=green>[Quantum2D]</color> ĐÃ KÍCH HOẠT THÀNH CÔNG: PlayerSpawningSystem, PlayerMovementSystem, PlayerCombatSystem!");
         }
     }
 }
