@@ -29,8 +29,8 @@ namespace Quantum
             if (input->Attack.WasPressed && filter.Character->AttackCooldown <= FP._0 && filter.Character->CurrentState != ActionState.Dash)
             {
                 filter.Character->ComboIndex = (filter.Character->ComboIndex % 3) + 1;
-                filter.Character->AttackCooldown = FP._0_33; // 0.33s giữa các hit
-                filter.Character->StateTimer = FP._0_25 + FP._0_05; // 0.30s
+                filter.Character->AttackCooldown = FP._1; // 1.0s cooldown để đánh trọn vẹn combo
+                filter.Character->StateTimer = FP._1;     // 1.0s diễn hoạt trọn vẹn 16 frames rõ ràng
 
                 switch (filter.Character->ComboIndex)
                 {
