@@ -35,13 +35,13 @@ namespace Quantum2D.EditorTools
                 importer.alphaIsTransparency = true;
                 importer.mipmapEnabled = false;
 
-                // Load Texture để lấy kích thước thật
+                // Load Texture để lấy kích thước thật (1024 x 240)
                 Texture2D tex = AssetDatabase.LoadAssetAtPath<Texture2D>(assetPath);
                 int width = tex != null ? tex.width : 1024;
-                int height = tex != null ? tex.height : 341;
+                int height = tex != null ? tex.height : 240;
                 int cols = 6;
-                float cellW = (float)width / cols;
-                float cellH = (float)height;
+                float cellW = (float)width / cols; // ~170.66 px
+                float cellH = (float)height;       // 240 px
 
                 List<SpriteMetaData> metas = new List<SpriteMetaData>();
                 for (int i = 0; i < cols; i++)
@@ -52,7 +52,7 @@ namespace Quantum2D.EditorTools
                         name = $"{baseName}_{i}",
                         rect = new Rect(x, 0, cellW, cellH),
                         alignment = (int)SpriteAlignment.Custom,
-                        pivot = new Vector2(0.5f, 0.22f) // Trọng tâm bàn chân nhân vật
+                        pivot = new Vector2(0.5f, 0.08f) // Đặt gốc chân nhân vật sát đáy
                     };
                     metas.Add(meta);
                 }
@@ -63,7 +63,7 @@ namespace Quantum2D.EditorTools
             }
 
             AssetDatabase.Refresh();
-            Debug.Log("<color=green>[Quantum2D]</color> ĐÃ CẮT THÀNH CÔNG 6 FRAMES V2 CHO KIẾM SĨ MỚI!");
+            Debug.Log("<color=green>[Quantum2D]</color> ĐÃ CẮT GỌN GÀNG VÀ CHUẨN XÁC 6 FRAMES V2 CHO KIẾM SĨ MỚI!");
         }
 
         [MenuItem("Quantum2D/🌟 2. RÁP PREFAB VOI ANH V2 SIEU MUOT")]
@@ -89,7 +89,6 @@ namespace Quantum2D.EditorTools
             }
 
             var animController = go.AddComponent<CharacterAnimationController2D>();
-            // Gán Idle, Run, Attack (dùng walk làm dash tạm thời)
             animController.SetAnimationClips(idleSprites, runSprites, attackSprites, walkSprites, runSprites, idleSprites);
 
             var vfxSpawner = go.AddComponent<CharacterVFXSpawner2D>();
@@ -104,7 +103,7 @@ namespace Quantum2D.EditorTools
 
             AssetDatabase.SaveAssets();
             AssetDatabase.Refresh();
-            Debug.Log("<color=green>[Quantum2D]</color> ĐÃ CẬP NHẬT PREFAB SWORDMASTER VỚI BỘ SPRITE V2 SIÊU ĐẸP!");
+            Debug.Log("<color=green>[Quantum2D]</color> ĐÃ CẬP NHẬT PREFAB SWORDMASTER GỌN GÀNG, KHÔNG THỪA KHOẢNG TRỐNG!");
         }
 
         private static List<Sprite> LoadSpritesFromAsset(string path)
