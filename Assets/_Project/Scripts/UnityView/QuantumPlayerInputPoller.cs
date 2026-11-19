@@ -25,6 +25,8 @@ namespace Quantum2D.UnityView
             Quantum.Input input = new Quantum.Input();
 
             Vector2 move = Vector2.zero;
+
+            // 1. Thử New Input System (Package UnityEngine.InputSystem)
             if (Keyboard.current != null)
             {
                 if (Keyboard.current.wKey.isPressed || Keyboard.current.upArrowKey.isPressed) move.y += 1;
@@ -32,10 +34,27 @@ namespace Quantum2D.UnityView
                 if (Keyboard.current.aKey.isPressed || Keyboard.current.leftArrowKey.isPressed) move.x -= 1;
                 if (Keyboard.current.dKey.isPressed || Keyboard.current.rightArrowKey.isPressed) move.x += 1;
 
-                input.Attack = Keyboard.current.jKey.isPressed || Mouse.current.leftButton.isPressed;
-                input.Dash = Keyboard.current.spaceKey.isPressed || Keyboard.current.kKey.isPressed;
-                input.Interact = Keyboard.current.fKey.isPressed || Keyboard.current.eKey.isPressed;
+                if (Keyboard.current.jKey.isPressed || (Mouse.current != null && Mouse.current.leftButton.isPressed)) input.Attack = true;
+                if (Keyboard.current.spaceKey.isPressed || Keyboard.current.kKey.isPressed) input.Dash = true;
+                if (Keyboard.current.fKey.isPressed || Keyboard.current.eKey.isPressed) input.Interact = true;
             }
+
+            // 2. Dự phòng thêm Legacy Input (UnityEngine.Input) đảm bảo 100% ăn phím khi Game View active
+            try
+            {
+                if (UnityEngine.Input.GetKey(KeyCode.W) || UnityEngine.Input.GetKey(KeyCode.UpArrow)) move.y += 1;
+                if (UnityEngine.Input.GetKey(KeyCode.S) || UnityEngine.Input.GetKey(KeyCode.DownArrow)) move.y -= 1;
+                if (UnityEngine.Input.GetKey(KeyCode.A) || UnityEngine.Input.GetKey(KeyCode.LeftArrow)) move.x -= 1;
+                if (UnityEngine.Input.GetKey(KeyCode.D) || UnityEngine.Input.GetKey(KeyCode.RightArrow)) move.x += 1;
+
+                if (UnityEngine.Input.GetKey(KeyCode.J) || UnityEngine.Input.GetMouseButton(0)) input.Attack = true;
+                if (UnityEngine.Input.GetKey(KeyCode.Space) || UnityEngine.Input.GetKey(KeyCode.K)) input.Dash = true;
+                if (UnityEngine.Input.GetKey(KeyCode.F) || UnityEngine.Input.GetKey(KeyCode.E)) input.Interact = true;
+            }
+            catch { }
+
+            // Giới hạn độ dài di chuyển chéo không vượt quá 1
+            if (move.sqrMagnitude > 1f) move.Normalize();
 
             if (Gamepad.current != null)
             {
